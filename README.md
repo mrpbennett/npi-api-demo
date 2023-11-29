@@ -48,6 +48,12 @@ password = "xxx"
 account = "xxx"
 ```
 
+### Our current API request restrictions are as follows
+
+GET: 1 request per 1 second PUT, POST, PATCH, DELETE: 10 requests per 60 seconds
+
+### Get Started
+
 Now you're ready to test the API. Head over to `main.py` where you're able to
 call each one of the endpoints via the `NPIListAPIClass` in `npi_api_class.py`.
 To do this please follow the instructions within the comments. You will also
