@@ -18,7 +18,8 @@ npi_class_instance = NPIListAPIClass(auth_token)
 
 def main():
     """
-    NOTE: We will pass the above auth_token in all out function calls.
+    NOTE:
+    We will pass the above auth_token in all out function calls. Please change the list ID 11105 to the one you require testing
     """
 
     choice = 3
