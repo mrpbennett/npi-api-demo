@@ -8,7 +8,7 @@ with open("config.toml", mode="rb") as conf:
     config = tomli.load(conf)
 
 
-class NPIListAPIClass:
+class NPIListsWithAttributes:
     def __init__(self, token=None, account_id=0):
         self.token = token
         self.account_id: int = account_id
@@ -66,64 +66,8 @@ class NPIListAPIClass:
     def establish_connection(self, token):
         return self.return_client(token)
 
-    # GET NPIS FROM A LIST
-    def get_a_single_npi_list(self, token: str, list_id: int):
-        """
-        Method for getting a single NPI list
-
-        Params:
-            - token (string): Generated token from main.py
-            - list_id (int): List ID the user wishes to collect
-
-        Returns:
-            JSON response from succesful call to EP or an HTTPError if False
-        """
-        conn = self.establish_connection(token)
-
-        try:
-            res = conn.get(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}"
-            )
-            res.raise_for_status()
-
-            if res.status_code == requests.codes.ok:
-                print(res.json())
-
-                return res.json()
-
-        except requests.exceptions.HTTPError as error:
-            raise error
-
-    # GET ALL NPI LISTS ASSOCIATED WITH AN ACCOUNT
-    def get_all_account_npi_lists(self, token: str, account_id: int):
-        """
-        Method to get all npi lists for an account
-
-        Params:
-            - token (string): Generated token from main.py
-            - account_id (string): Account ID from the account user wants to use
-
-        Returns
-            JSON response from succesful call to EP or an HTTPError if False
-        """
-        conn = self.establish_connection(token)
-
-        try:
-            res = conn.get(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/account/{account_id}"
-            )
-            res.raise_for_status()
-
-            if res.status_code == requests.codes.ok:
-                print(res.json())
-
-                return res.json()
-
-        except requests.exceptions.HTTPError as error:
-            raise error
-
-    # CREATE AN NPI LIST
-    def create_an_npi_list(self, token, account_id: int, new_list: dict):
+    # CREATE NPI LIST WITH ATTRIBUTES
+    def create_npi_list_with_attributes(self, token, account_id: int, new_list: dict):
         """
         Method to get all npi lists for an account
 
@@ -135,19 +79,29 @@ class NPIListAPIClass:
             Example of new_list:
 
             {
+                "attributeValues": [
+                    [ "SomeCampaignName_1, "PulsePoint Inc." ],
+                    [ "SomeCampaignName_2, "PulsePoint Inc." ],
+                ],
+                "attributes" ["CampaignName", "CompanyName" ]
                 "name":"TEST_2022_1",
                 "npis":["3137933127","3134730121"],
-                "advertisers": ["Demo"]
+                "advertisers": ["Demo"],
+                "application": "signal"
             }
+
+            Application can take the following: "signal" / "life". If application is not present "life" is default.
 
         Returns
             JSON response from succesful call to EP or an HTTPError if False
         """
         conn = self.establish_connection(token)
 
+        # TODO: Test EP to see if we can create a list with attributes
+
         try:
             res = conn.post(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/account/{account_id}",
+                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/account/{account_id}/attributes",
                 json=new_list,
             )
             res.raise_for_status()
@@ -160,8 +114,8 @@ class NPIListAPIClass:
         except requests.exceptions.HTTPError as error:
             raise error
 
-    # REPLACE AN NPIS IN A LIST
-    def replace_npis_in_list(self, token, list_id, npis):
+    # REPLACE A NPI LIST WITH ATTRIBUTES
+    def replace_a_list_with_attributes(self, token, list_id: int, npis: dict):
         """
         Method to get all npi lists for an account
 
@@ -181,9 +135,11 @@ class NPIListAPIClass:
         """
         conn = self.establish_connection(token)
 
+        # TODO: Test the EP with the attributes
+
         try:
             res = conn.put(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}",
+                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}/attributes",
                 json=npis,
             )
             res.raise_for_status()
@@ -194,74 +150,31 @@ class NPIListAPIClass:
         except requests.exceptions.HTTPError as error:
             raise error
 
-    # ADD NPIS TO A LIST
-    def add_npis_to_a_list(self, token, list_id, npis):
+    # VIEW A NPI LIST WITH ATTRIBUTES
+    def view_a_list_with_attributes(self, token, list_id: int):
         """
-        Method to get all npi lists for an account
+        Method for getting a single NPI list
 
         Params:
             - token (string): Generated token from main.py
-            - account_id (string): Account ID from the account user wants to use
-            - npis (list): List of NPI numbers
+            - list_id (int): List ID the user wishes to collect
 
-            Example of npis:
-
-        {
-            "operation":"add",
-            "npis":["3137933122", "3134730123"]
-        }
-
-
-        Returns
+        Returns:
             JSON response from succesful call to EP or an HTTPError if False
         """
         conn = self.establish_connection(token)
 
+        #  TODO: Test EP to see it can retrieve list attributes
+
         try:
-            res = conn.patch(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}",
-                json=npis,
+            res = conn.get(
+                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}/attributes"
             )
             res.raise_for_status()
 
             if res.status_code == requests.codes.ok:
-                print(f"Succssfully added:\n{npis}")
+                print(res.json())
 
-        except requests.exceptions.HTTPError as error:
-            raise error
-
-    # DELETE NPIS FROM A LIST
-    def remove_npis_from_list(self, token, list_id, npis):
-        """
-        Method to get all npi lists for an account
-
-        Params:
-            - token (string): Generated token from main.py
-            - account_id (string): Account ID from the account user wants to use
-            - npis (list): List of NPI numbers
-
-            Example of npis:
-
-        {
-            "operation":"remove",
-            "npis":["3137933122", "3134730123"]
-        }
-
-
-        Returns
-            JSON response from succesful call to EP or an HTTPError if False
-        """
-        conn = self.establish_connection(token)
-
-        try:
-            res = conn.patch(
-                f"https://lifeapi.pulsepoint.com/RestApi/v1/npi/npi-list/{list_id}",
-                json=npis,
-            )
-            res.raise_for_status()
-
-            if res.status_code == requests.codes.ok:
-                print(f"Succssfully removed:\n{npis}")
                 return res.json()
 
         except requests.exceptions.HTTPError as error:

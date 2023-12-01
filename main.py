@@ -1,6 +1,7 @@
 import tomli
 
-from npi_api_class import NPIListAPIClass
+from npi_lists_only import NPIListsOnly
+from npi_lists_with_attributes import NPIListsWithAttributes
 
 # LOAD IN CONFIG FILE
 with open("config.toml", mode="rb") as conf:
@@ -8,18 +9,23 @@ with open("config.toml", mode="rb") as conf:
 
 
 # Token generation
-auth_token = NPIListAPIClass.get_user_token(
+npi_lists_only_auth = NPIListsOnly.get_user_token(
     config["user"]["username"], config["user"]["password"]
 )
 
-# Class instance
-npi_class_instance = NPIListAPIClass(auth_token)
+npi_lists_with_attributes_auth = NPIListsWithAttributes.get_user_token(
+    config["user"]["username"], config["user"]["password"]
+)
+
+# Class instances
+npi_lists_only = NPIListsOnly(npi_lists_only_auth)
+npi_lists_with_attributes = NPIListsWithAttributes(npi_lists_with_attributes_auth)
 
 
 def main():
     """
     NOTE:
-    We will pass the above auth_token in all out function calls. Please change the list ID 11105 to the one you require testing
+    We will pass the above npi_lists_only_auth in all out function calls. Please change the list ID 11105 to the one you require testing
     """
 
     choice = 3
@@ -29,15 +35,15 @@ def main():
         """
         Here we are passing the list id of the list we want to see.
         """
-        npi_class_instance.get_a_single_npi_list(auth_token, 11105)
+        npi_lists_only.get_a_single_npi_list(npi_lists_only_auth, 11105)
 
     if choice == 2:
         # GET ALL NPI LISTS IN ACCOUNT
         """
         Here we are passing the account ID of the account we wish to see the NPIS lists from.
         """
-        npi_class_instance.get_all_account_npi_lists(
-            auth_token, config["user"]["account"]
+        npi_lists_only.get_all_account_npi_lists(
+            npi_lists_only_auth, config["user"]["account"]
         )
 
     if choice == 3:
@@ -46,8 +52,8 @@ def main():
         Here we pass the account ID of the account we wish to create a new list in. We then pass a dictonary that makes up the new list.
         """
 
-        npi_class_instance.create_an_npi_list(
-            auth_token,
+        npi_lists_only.create_an_npi_list(
+            npi_lists_only_auth,
             config["user"]["account"],
             {
                 "name": "NPI_API_Test",
@@ -72,8 +78,8 @@ def main():
         """
         Here we pass the list ID of the list we wish to replace NPIs on. We then pass a dictonary with a list of NPIs we wish to replace.
         """
-        npi_class_instance.replace_npis_in_list(
-            auth_token,
+        npi_lists_only.replace_npis_in_list(
+            npi_lists_only_auth,
             11105,
             {
                 "npis": [
@@ -91,8 +97,8 @@ def main():
         """
         Here we pass the list ID we wish to add NPIs to. Then we pass a dictonary with the operation of "add" and a list of NPIs.
         """
-        npi_class_instance.add_npis_to_a_list(
-            auth_token,
+        npi_lists_only.add_npis_to_a_list(
+            npi_lists_only_auth,
             11105,
             {
                 "operation": "add",
@@ -105,8 +111,8 @@ def main():
         """
         Here we pass the list ID we wish to delete from. Then we pass a dictonary with the operation of "remove" and a list of NPIs.
         """
-        npi_class_instance.remove_npis_from_list(
-            auth_token,
+        npi_lists_only.remove_npis_from_list(
+            npi_lists_only_auth,
             11105,
             {
                 "operation": "remove",
@@ -122,6 +128,25 @@ def main():
                     "6327354843",
                 ],
             },
+        )
+
+    """
+    NPI list with attributes is an NPI list that appends a client's metadata to their list of NPIs. This  endpoint allows users to create an NPI list with attributes, replace an NPI list with attributes and view an  NPI list with attributes. 
+    """
+
+    if choice == 7:
+        npi_lists_with_attributes.create_npi_list_with_attributes(
+            npi_lists_with_attributes_auth, 12345, {"something": "..."}
+        )
+
+    if choice == 8:
+        npi_lists_with_attributes.replace_a_list_with_attributes(
+            npi_lists_with_attributes_auth, 123456, {"something": "..."}
+        )
+
+    if choice == 9:
+        npi_lists_with_attributes.view_a_list_with_attributes(
+            npi_lists_with_attributes_auth, 12345
         )
 
 
