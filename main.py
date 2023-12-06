@@ -141,7 +141,7 @@ def main():
 
     if choice == 8:
         npi_lists_with_attributes.replace_a_list_with_attributes(
-            npi_lists_with_attributes_auth, 123456, {"something": "..."}
+            npi_lists_with_attributes_auth, 12345, {"something": "..."}
         )
 
     if choice == 9:
